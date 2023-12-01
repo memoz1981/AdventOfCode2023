@@ -5,10 +5,10 @@
         public static string ConvertDigitToEnlishLowerCaseWord(this int i)
         {
             var englishDigitWords = new[] 
-            {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
+            { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
             
             if (i < 0 || i > 9)
-                throw new ArgumentException("Only for digits");
+                throw new ArgumentException("Only for digits...");
 
             return englishDigitWords[i]; 
         }
