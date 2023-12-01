@@ -6,7 +6,7 @@
             => new() 
             { 
                 new NumbersOnlyStringLineNumberFinder(), 
-                new TextOnlyStringLineNumberFinderFirstSolution() 
+                new TextOnlyStringLineNumberFinder() 
             };
     }
 }

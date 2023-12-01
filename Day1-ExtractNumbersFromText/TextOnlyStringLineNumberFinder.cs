@@ -2,7 +2,7 @@
 
 namespace Day1_ExtractNumbersFromText
 {
-    public class TextOnlyStringLineNumberFinderFirstSolution : IStringLineNumberFinder
+    public class TextOnlyStringLineNumberFinder : IStringLineNumberFinder
     {
         public StringNumberFinderResult GetNumbers(string stringLine)
         {
