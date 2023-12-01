@@ -6,24 +6,20 @@ namespace Day1_ExtractNumbersFromText
     {
         public StringNumberFinderResult GetNumbers(string stringLine)
         {
-            var firstIndexes = new int[10];
-            var lastIndexes = new int[10];
-            for (int i = 1; i <= 9; i++)
-            {
-                firstIndexes[i] = stringLine.IndexOf(i.ConvertDigitToEnlishLowerCaseWord());
-                lastIndexes[i] = stringLine.LastIndexOf(i.ConvertDigitToEnlishLowerCaseWord());
-            }
-
             var indexFirst = (index: int.MaxValue, value: 0);
             var indexLast = (index: -1, value: 0);
 
             for (int i = 1; i <= 9; i++)
             {
-                if (firstIndexes[i] != -1 && firstIndexes[i] < indexFirst.index)
-                    indexFirst = (firstIndexes[i], i);
+                var word = i.ConvertDigitToEnlishLowerCaseWord(); 
+                var firstIndexOfi = stringLine.IndexOf(word);
+                var lastIndexOfi = stringLine.LastIndexOf(word);
 
-                if (lastIndexes[i] > indexLast.index)
-                    indexLast = (lastIndexes[i], i);
+                if (firstIndexOfi != -1 && firstIndexOfi < indexFirst.index)
+                    indexFirst = (firstIndexOfi, i);
+
+                if (lastIndexOfi > indexLast.index)
+                    indexLast = (lastIndexOfi, i);
             }
 
             return new StringNumberFinderResult(

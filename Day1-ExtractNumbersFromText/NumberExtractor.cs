@@ -17,13 +17,15 @@
 
         private int CalculateInteger(IEnumerable<StringNumberFinderResult> results)
         {
-            int firstValue = results
+            var firstValue = results
                 .OrderBy(res => res.FirstIndex)
                 .First()
                 .FirstValue;
 
-            int lastValue = results
-                .OrderByDescending(res => res.LastIndex).First().LastValue;
+            var lastValue = results
+                .OrderByDescending(res => res.LastIndex)
+                .First()
+                .LastValue;
 
             return firstValue * 10 + lastValue;
         }
