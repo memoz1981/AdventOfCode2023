@@ -27,10 +27,10 @@ namespace AdventOfCode2023.API.Controllers
                 
                 int gameNumber = int.Parse(line.Substring(5, indexSemicolon - 5));
 
-                var numbersForLine = GetMaximumNumbersForSingleGame(attemptsPerGame);
+                var colorDictionary = GetMaximumNumbersForSingleGame(attemptsPerGame);
 
-                if (numbersForLine.blue <= maxBlue && numbersForLine.red <= maxRed
-                    && numbersForLine.green <= maxGreen)
+                if (colorDictionary["blue"] <= maxBlue && colorDictionary["red"] <= maxRed
+                    && colorDictionary["green"] <= maxGreen)
                     sum += gameNumber;
             }
 
@@ -52,51 +52,36 @@ namespace AdventOfCode2023.API.Controllers
                     .Substring(dataStartIndex, line.Length - dataStartIndex)
                     .Split(';');
 
-                var numbersForLine = GetMaximumNumbersForSingleGame(attemptsPerGame);
+                var colorDictionary = GetMaximumNumbersForSingleGame(attemptsPerGame);
 
-                sum += numbersForLine.blue * numbersForLine.red * numbersForLine.green;
+                sum += colorDictionary["blue"] * colorDictionary["red"] * colorDictionary["green"];
             }
 
             return Ok(sum);
         }
 
-        private (int blue, int red, int green) GetMaximumNumbersForSingleGame(string[] attempts)
+        private Dictionary<string, int> GetMaximumNumbersForSingleGame(string[] attempts)
         {
-            var numBlueMax = 0;
-            var numGreenMax = 0;
-            var numRedMax = 0;
+            var colorDictionary = new Dictionary<string, int>()
+            {
+                { "blue", 0}, { "red", 0}, { "green", 0}
+            };
 
             foreach (var attempt in attempts)
             {
-                var splitByColor = attempt.Split(',');
-                var numBlue = 0;
-                var numGreen = 0;
-                var numRed = 0;
+                var colorCodes = attempt.Split(',').Select(st => st.Trim());
 
-                foreach (var color in splitByColor)
+                foreach (var item in colorCodes)
                 {
-                    numBlue = GetNumberFromColor(color, "blue");
-                    numRed = GetNumberFromColor(color, "red");
-                    numGreen = GetNumberFromColor(color, "green");
-
-                    numBlueMax = Math.Max(numBlueMax, numBlue);
-                    numRedMax = Math.Max(numRedMax, numRed);
-                    numGreenMax = Math.Max(numGreenMax, numGreen);
+                    var splittedItem = item.Split(' '); 
+                    var num = int.Parse(splittedItem.First());
+                    var color = splittedItem.Last().Trim();
+                    colorDictionary[color] = Math.Max(colorDictionary[color], num);
                 }
-            }
-            return (numBlueMax, numRedMax, numGreenMax);
-        }
 
-        private int GetNumberFromColor(string str, string color)
-        {
-            var index = str.IndexOf(color);
-            if (index == -1)
-            {
-                return 0;
             }
-            var numColor = str.Substring(0, index);
 
-            return int.Parse(numColor);
+            return colorDictionary; 
         }
     }
 }
