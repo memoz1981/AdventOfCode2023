@@ -42,10 +42,9 @@ namespace AdventOfCode2023.API.Controllers
             int[] cardCount = new int[matchArray.Length];
             for(int i=0; i <= matchArray.Length - 1; i++)
             {
-                var matches = matchArray[i];
                 cardCount[i]++; 
 
-                for (int j = i + 1; j <= Math.Min(i + matches, matchArray.Length-1); j++)
+                for (int j = i + 1; j <= Math.Min(i + matchArray[i], matchArray.Length-1); j++)
                 {
                     cardCount[j] = cardCount[j] + cardCount[i];
                 }
