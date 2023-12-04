@@ -5,7 +5,7 @@ namespace AdventOfCode2023.API.Controllers
 {
     [Route("day3")]
     [ApiController]
-    public class Day3Controller : ControllerBase
+    public class _3_Day3_Controller : ControllerBase
     {
         [HttpGet("exercise1")]
         public IActionResult Exercise1()
