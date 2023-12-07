@@ -2,15 +2,10 @@
 {
     public class HandWithJoker : Hand
     {
-        public HandWithJoker(string line) : base(line) 
-        {
-            _values['J'] = 1; 
-        }
+        public HandWithJoker(string line) : base(line) => _values['J'] = 1;
 
-        public HandWithJoker(string cards, string bidAmount) : base(cards, bidAmount) 
-        {
-            _values['J'] = 1;
-        }
+        public HandWithJoker(string cards, string bidAmount) : base(cards, bidAmount)
+             => _values['J'] = 1;
 
         public override Type GetCardType()
         {
@@ -25,17 +20,14 @@
             }
 
             var typeMax = Type.HighCard;
-            var distinctNew = new char[distinct.Count];
 
             for (int i = 0; i < distinct.Count; i++)
             {
                 if (distinct[i] == 'J')
-                    distinctNew[i] = 'Z';
-                else
-                    distinctNew[i] = distinct[i];
+                    distinct[i] = 'Z';
             }
 
-            foreach (var ch in distinctNew)
+            foreach (var ch in distinct)
             {
                 var list = new char[5];
                 for (int j = 0; j < 5; j++)

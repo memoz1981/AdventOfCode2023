@@ -22,44 +22,28 @@
         {
             var distinct = Cards.Distinct().ToList();
 
-            if (distinct.Count == 1)
-                return Type.FiveOfAKind;
+            var maxRepetition = Cards.GroupBy(x => x)
+               .Select(x => new { Char = x.Key, Count = x.Count() })
+               .OrderByDescending(x => x.Count)
+               .First().Count;
 
-            if (distinct.Count == 5)
-                return Type.HighCard;
-
-            if (distinct.Count == 4)
-                return Type.OnePair;
-
-            if (distinct.Count == 3)
+            return (distinct.Count, maxRepetition) switch
             {
-                var count1 = Cards.Count(m => m == distinct[0]);
-                var count2 = Cards.Count(m => m == distinct[1]);
-                var count3 = Cards.Count(m => m == distinct[2]);
+                (1, _) => Type.FiveOfAKind,
+                (2, 4) => Type.FourOfAKind,
+                (2, 3) => Type.FullHouse,
+                (3, 3) => Type.ThreeOfAKind,
+                (3, 2) => Type.TwoPair,
+                (4, _) => Type.OnePair,
+                (5, _) => Type.HighCard,
 
-                if (Math.Max(count3, Math.Max(count1, count2)) == 2)
-                    return Type.TwoPair;
-
-                return Type.ThreeOfAKind;
-            }
-
-            if (distinct.Count == 2)
-            {
-                var count1 = Cards.Count(m => m == distinct.First());
-                var count2 = Cards.Count(m => m == distinct.Last());
-
-                if (Math.Max(count1, count2) == 4)
-                    return Type.FourOfAKind;
-
-                return Type.FullHouse;
-            }
-            throw new ArgumentException();
+                _ => throw new ArgumentException()
+            };
         }
 
         public int CompareTo(Hand other)
         {
             var typeThis = GetCardType();
-
             var typeOther = other.GetCardType();
 
             if ((int)typeThis > (int)typeOther)
