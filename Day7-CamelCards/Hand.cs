@@ -8,10 +8,10 @@
             BidAmount = long.Parse(line.Split(' ').Last().Trim());
         }
 
-        public Hand(string cards, string bidAmount)
+        public Hand(char[] cards, long bidAmount)
         {
-            Cards = cards.Trim().ToCharArray();
-            BidAmount = long.Parse(bidAmount.Trim());
+            Cards = cards;
+            BidAmount = bidAmount;
         }
 
         public char[] Cards { get; set; }

@@ -4,7 +4,7 @@
     {
         public HandWithJoker(string line) : base(line) => _values['J'] = 1;
 
-        public HandWithJoker(string cards, string bidAmount) : base(cards, bidAmount)
+        public HandWithJoker(char[] cards, long bidAmount) : base(cards, bidAmount) 
              => _values['J'] = 1;
 
         public override Type GetCardType()
@@ -38,7 +38,7 @@
                         list[j] = Cards[j];
                 }
 
-                var cardsNew = new HandWithJoker(new string(list), "1");
+                var cardsNew = new HandWithJoker(list, 1);
                 var type = cardsNew.GetCardType();
 
                 typeMax = (int)typeMax > (int)type ? typeMax : type;
