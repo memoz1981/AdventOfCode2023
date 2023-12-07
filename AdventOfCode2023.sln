@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventOfCode2023.API", "Adv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day2-Cubes", "Day2-Cubes\Day2-Cubes.csproj", "{80FFE8C9-CC70-4B80-BA0A-94182CE512A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Day5-Seeds", "Day5-Seeds\Day5-Seeds.csproj", "{8C1279E8-2FBC-4AB8-94FB-D95AC153D62C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day5-Seeds", "Day5-Seeds\Day5-Seeds.csproj", "{8C1279E8-2FBC-4AB8-94FB-D95AC153D62C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Day7-CamelCards", "Day7-CamelCards\Day7-CamelCards.csproj", "{60D1D2CE-0AC1-4C6C-99E8-3FB3D94BAEA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{8C1279E8-2FBC-4AB8-94FB-D95AC153D62C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C1279E8-2FBC-4AB8-94FB-D95AC153D62C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C1279E8-2FBC-4AB8-94FB-D95AC153D62C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60D1D2CE-0AC1-4C6C-99E8-3FB3D94BAEA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60D1D2CE-0AC1-4C6C-99E8-3FB3D94BAEA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60D1D2CE-0AC1-4C6C-99E8-3FB3D94BAEA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60D1D2CE-0AC1-4C6C-99E8-3FB3D94BAEA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
