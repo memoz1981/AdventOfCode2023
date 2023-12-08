@@ -7,6 +7,7 @@ namespace AdventOfCode2023.API.Controllers
 {
     [Route("day6")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class _6_Day6_Controller : ControllerBase
     {
         private const string dataFile = "data6.txt"; 

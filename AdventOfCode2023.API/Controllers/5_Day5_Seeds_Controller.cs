@@ -7,6 +7,7 @@ namespace AdventOfCode2023.API.Controllers
 {
     [Route("day5new")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class _5_Day5_Seeds_Controller : ControllerBase
     {
         [HttpGet("exercise1")]

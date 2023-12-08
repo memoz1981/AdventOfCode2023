@@ -6,6 +6,7 @@ namespace AdventOfCode2023.API.Controllers
 {
     [Route("day1")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class _1_ExtractNumbersFromText_Controller : ControllerBase
     {
         [HttpGet("exercise1")]
