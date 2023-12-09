@@ -1,6 +1,5 @@
 ﻿using Common.Services;
 using Day7_CamelCards;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdventOfCode2023.API.Controllers

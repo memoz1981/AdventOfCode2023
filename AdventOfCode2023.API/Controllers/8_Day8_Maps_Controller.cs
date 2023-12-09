@@ -5,6 +5,7 @@ namespace AdventOfCode2023.API.Controllers
 {
     [Route("day8new")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class _8_Day8_Maps_Controller : ControllerBase
     {
 
