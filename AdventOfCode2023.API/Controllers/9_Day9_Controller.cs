@@ -16,7 +16,7 @@ namespace AdventOfCode2023.API.Controllers
             long result = 0; 
             foreach (var line in lines)
             {
-                long[] numbers = line.Split(' ').Select(x => long.Parse(x)).ToArray(); 
+                var numbers = line.Split(' ').Select(x => long.Parse(x)).ToList(); 
                 result += FindExtraPolatedValue(numbers);
             }
 
@@ -32,41 +32,38 @@ namespace AdventOfCode2023.API.Controllers
             long result = 0;
             foreach (var line in lines)
             {
-                long[] numbers = line.Split(' ').Select(x => long.Parse(x)).ToArray();
+                var numbers = line.Split(' ').Select(x => long.Parse(x)).ToList();
                 result += FindExtraPolatedValueNew(numbers);
             }
 
             return Ok(result);
         }
 
-        private static long FindExtraPolatedValue(long[] numbers)
+        private static long FindExtraPolatedValue(List<long> numbers)
         {
             if (numbers.All(m => m == 0))
                 return 0;
 
             var numNext = new List<long>();
-            for (int i = 0; i < numbers.Length-1; i++)
+            for (int i = 0; i < numbers.Count-1; i++)
             {
                 numNext.Add(numbers[i + 1] - numbers[i]);
             }
-            var numArray = numNext.ToArray();
 
-            return FindExtraPolatedValue(numArray) + numbers[numbers.Length - 1];
+            return FindExtraPolatedValue(numNext) + numbers[numbers.Count - 1];
         }
 
-        private static long FindExtraPolatedValueNew(long[] numbers)
+        private static long FindExtraPolatedValueNew(List<long> numbers)
         {
             if (numbers.All(m => m == 0))
                 return 0;
 
             var numNext = new List<long>();
-            for (int i = 0; i < numbers.Length - 1; i++)
+            for (int i = 0; i < numbers.Count - 1; i++)
             {
                 numNext.Add(numbers[i + 1] - numbers[i]);
             }
-            var numArray = numNext.ToArray();
-
-            return numbers[0] - FindExtraPolatedValueNew(numArray);
+            return numbers[0] - FindExtraPolatedValueNew(numNext);
         }
     }
 }
