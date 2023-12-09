@@ -17,7 +17,7 @@ namespace AdventOfCode2023.API.Controllers
             foreach (var line in lines)
             {
                 var numbers = line.Split(' ').Select(x => long.Parse(x)).ToList(); 
-                result += FindExtraPolatedValue(numbers);
+                result += FindExtraPolatedLast(numbers);
             }
 
             return Ok(result);
@@ -33,37 +33,42 @@ namespace AdventOfCode2023.API.Controllers
             foreach (var line in lines)
             {
                 var numbers = line.Split(' ').Select(x => long.Parse(x)).ToList();
-                result += FindExtraPolatedValueNew(numbers);
+                result += FindExtraPolatedFirst(numbers);
             }
 
             return Ok(result);
         }
 
-        private static long FindExtraPolatedValue(List<long> numbers)
+        private static long FindExtraPolatedLast(List<long> numbers)
         {
             if (numbers.All(m => m == 0))
                 return 0;
 
-            var numNext = new List<long>();
-            for (int i = 0; i < numbers.Count-1; i++)
-            {
-                numNext.Add(numbers[i + 1] - numbers[i]);
-            }
+            var numNext = FindNextRow(numbers);
 
-            return FindExtraPolatedValue(numNext) + numbers[numbers.Count - 1];
+            return FindExtraPolatedLast(numNext) + numbers[numbers.Count - 1];
         }
 
-        private static long FindExtraPolatedValueNew(List<long> numbers)
+        private static long FindExtraPolatedFirst(List<long> numbers)
         {
             if (numbers.All(m => m == 0))
                 return 0;
 
+            var numNext = FindNextRow(numbers);
+
+            return numbers[0] - FindExtraPolatedFirst(numNext);
+        }
+
+        private static List<long> FindNextRow(List<long> numbers)
+        {
             var numNext = new List<long>();
+
             for (int i = 0; i < numbers.Count - 1; i++)
             {
                 numNext.Add(numbers[i + 1] - numbers[i]);
             }
-            return numbers[0] - FindExtraPolatedValueNew(numNext);
+
+            return numNext;
         }
     }
 }
