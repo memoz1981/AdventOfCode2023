@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day2-Cubes", "Day2-Cubes\Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day5-Seeds", "Day5-Seeds\Day5-Seeds.csproj", "{8C1279E8-2FBC-4AB8-94FB-D95AC153D62C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Day7-CamelCards", "Day7-CamelCards\Day7-CamelCards.csproj", "{60D1D2CE-0AC1-4C6C-99E8-3FB3D94BAEA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day7-CamelCards", "Day7-CamelCards\Day7-CamelCards.csproj", "{60D1D2CE-0AC1-4C6C-99E8-3FB3D94BAEA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
