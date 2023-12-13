@@ -167,7 +167,7 @@ namespace AdventOfCode2023.API.Controllers
 
             foreach (var item in candidates)
             {
-                if (IsElementNew((item.col, item.row), reordered))
+                if (IsElementNew((item.col, item.row), pipes))
                     result++; 
             }
 
