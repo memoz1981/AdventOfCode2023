@@ -6,6 +6,7 @@ namespace AdventOfCode2023.API.Controllers
 {
     [Route("day10")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class _10_Day10_Controller : ControllerBase
     {
         Dictionary<char, List<Direction>> _directions;
