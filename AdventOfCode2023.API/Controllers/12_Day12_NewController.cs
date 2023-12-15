@@ -28,14 +28,32 @@ namespace AdventOfCode2023.API.Controllers
             return Ok(); 
         }
 
+        private static Dictionary<int, int> 
+            ReturnArrayIndexVsCombinationCountForSymbol(string symbol, int[] numbers, 
+            int numberStartIndex = 0)
+        {
+            if (!CanNumberBeUsedInString(symbol, numbers[numberStartIndex], 0, symbol.Length - 1, out var nextIndex))
+            {
+                return null; 
+            }
+
+            
+
+            return new(); 
+        }
+
         private List<string> ReturnSplitted(string symbols)
         {
             return symbols.Split('.').Where(m => m != "").ToList(); 
         }
 
-        private bool CanNumberBeUsedInString(string symbol, int number, int startIndex, out int nextIndex)
+        private static bool CanNumberBeUsedInString(string symbol, int number, int startIndex, int endIndex, 
+            out int nextIndex)
         {
-            nextIndex = startIndex + number; 
+            nextIndex = startIndex + number + 1; //we want to add the space (.)
+            if (startIndex == endIndex || endIndex >= symbol.Length)
+                return false; 
+            
             if (startIndex + number > symbol.Length)
                 return false;
 
@@ -44,7 +62,7 @@ namespace AdventOfCode2023.API.Controllers
                 return true; 
             }
 
-            if (symbol[nextIndex] == '#')
+            if (symbol[startIndex + number] == '#')
                 return false;
 
             return true; 
