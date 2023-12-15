@@ -1,5 +1,4 @@
-﻿using Common.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
 namespace AdventOfCode2023.API.Controllers
@@ -44,8 +43,6 @@ namespace AdventOfCode2023.API.Controllers
 
             var stringList = readText.Split(',').Where(m => m != "" && !m.Equals('\n')).ToList();
 
-            int result = 0;
-
             var boxes = new Dictionary<int, Box>();
 
             for (int i = 0; i < 255; i++)
@@ -58,19 +55,13 @@ namespace AdventOfCode2023.API.Controllers
                 PerformSingleStep(boxes, step); 
             }
 
-            var builder = new StringBuilder();
-            int resultNew = 0; 
+            int result = 0; 
             for (int i = 0; i < 255; i++)
             {
-                if (!boxes[i].IsEmpty())
-                {
-                    builder.AppendLine(boxes[i].ToString());
-                    resultNew += boxes[i].ReturnValue(); 
-                }
-                 
+                result += boxes[i].ReturnValue();
             }
 
-            return Ok(resultNew);
+            return Ok(result);
         }
 
         private void PerformSingleStep(Dictionary<int, Box> boxes, string step)
@@ -95,7 +86,6 @@ namespace AdventOfCode2023.API.Controllers
             
             throw new ArgumentException();         
         }
-
     }
 
     public class Box
@@ -109,6 +99,8 @@ namespace AdventOfCode2023.API.Controllers
 
         public int ReturnValue()
         {
+            if (!_lensesByLabel.Any())
+                return 0; 
             int lensIndex = 1;
             int result = 0;
             var previous = Head;
@@ -121,8 +113,6 @@ namespace AdventOfCode2023.API.Controllers
             return result; 
         }
 
-        public bool IsEmpty() => !_lensesByLabel.Any(); 
-
         private Dictionary<string, Lens> _lensesByLabel; 
 
         private Lens Head { get; set; }
@@ -131,7 +121,7 @@ namespace AdventOfCode2023.API.Controllers
         {
             if (_lensesByLabel.TryGetValue(label, out var lens))
             {
-                lens.FocalLength = focalLength;
+                lens.UpdateFocalLength(focalLength);
                 return; 
             }
 
@@ -141,13 +131,16 @@ namespace AdventOfCode2023.API.Controllers
                 _lensesByLabel.Add(label, Head);
                 return; 
             }
+
             var previous = Head;
             while (previous.Backward != null)
                 previous = previous.Backward;
 
             var lensNew = new Lens(label, focalLength, previous);
-            previous.Backward = lensNew;
-            lensNew.Forward = previous; 
+            
+            previous.UpdateChild(lensNew);
+            lensNew.UpdateParent(previous); 
+            
             _lensesByLabel.Add(label, lensNew); 
         }
 
@@ -168,17 +161,18 @@ namespace AdventOfCode2023.API.Controllers
                 else
                 {
                     Head = lens.Backward;
-                    lens.Backward.Forward = null; 
+                    Head.UpdateParent(null); 
                     _lensesByLabel.Remove(label);
                 }
                 
                 return; 
             }
 
-            lens.Forward.Backward = lens.Backward;
+            lens.Forward.UpdateChild(lens.Backward); 
 
             if (lens.Backward != null)
-                lens.Backward.Forward = lens.Forward;
+                lens.Backward.UpdateParent(lens.Forward);
+            
             _lensesByLabel.Remove(label);
         }
 
@@ -186,7 +180,7 @@ namespace AdventOfCode2023.API.Controllers
         {
             var builder = new StringBuilder();
 
-            builder.Append($"{Index} {ReturnValue()}: ");
+            builder.Append($"{Index} : ");
 
             var previous = Head;
 
@@ -210,13 +204,13 @@ namespace AdventOfCode2023.API.Controllers
                 Backward = null; 
             }
 
-            public string Label { get; set; }
+            public string Label { get; private set; }
 
-            public int FocalLength { get; set; }
+            public int FocalLength { get; private set; }
 
-            public Lens Forward { get; set; }
+            public Lens Forward { get; private set; }
 
-            public Lens Backward { get; set; }
+            public Lens Backward { get; private set; }
 
             public void UpdateFocalLength(int newFocalLength)
             {
