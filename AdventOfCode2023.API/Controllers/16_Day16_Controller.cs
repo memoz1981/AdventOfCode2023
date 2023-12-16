@@ -31,8 +31,6 @@ namespace AdventOfCode2023.API.Controllers
 
             var array = ReadLines(lines, out var height, out var width);
 
-            
-
             List<int> results = new();
 
             for (int j = 0; j < width; j++)
@@ -96,7 +94,6 @@ namespace AdventOfCode2023.API.Controllers
             previousDirections.Add((rowIndex, colIndex, nextDirection)); 
             
             intArray[rowIndex, colIndex]++;
-            
 
             var nextDirections = GetNextDirections(array[rowIndex, colIndex], nextDirection);
 
@@ -127,13 +124,11 @@ namespace AdventOfCode2023.API.Controllers
                 
                 ('|', BeamDirection.Up) => new() { BeamDirection.Up },
                 ('|', BeamDirection.Down) => new() { BeamDirection.Down },
-                ('|', BeamDirection.Left) => new() { BeamDirection.Up, BeamDirection.Down },
-                ('|', BeamDirection.Right) => new() { BeamDirection.Up, BeamDirection.Down },
+                ('|', _) => new() { BeamDirection.Up, BeamDirection.Down },
                 
                 ('-', BeamDirection.Left) => new() { BeamDirection.Left },
                 ('-', BeamDirection.Right) => new() { BeamDirection.Right },
-                ('-', BeamDirection.Up) => new() { BeamDirection.Left, BeamDirection.Right },
-                ('-', BeamDirection.Down) => new() { BeamDirection.Left, BeamDirection.Right },
+                ('-', _) => new() { BeamDirection.Left, BeamDirection.Right },
 
                 ('/', BeamDirection.Left) => new() { BeamDirection.Down },
                 ('/', BeamDirection.Right) => new() { BeamDirection.Up },
@@ -146,19 +141,18 @@ namespace AdventOfCode2023.API.Controllers
                 ('\\', BeamDirection.Down) => new() { BeamDirection.Right },
 
                 _ => throw new ArgumentException()
-
             };
-
         }
 
         private static (int rowIncrement, int colIncrement) GetIncrements(BeamDirection direction)
         {
             return direction switch
             {
-                BeamDirection.Up => (-1,0),
-                BeamDirection.Right => (0, 1),
-                BeamDirection.Down => (1, 0),
-                BeamDirection.Left => (0, -1)
+                BeamDirection.Up =>     (-1,0),
+                BeamDirection.Right =>  (0, 1),
+                BeamDirection.Down =>   (1, 0),
+                BeamDirection.Left =>   (0, -1),
+                _ => throw new ArgumentException()
             };
         }
 
@@ -178,8 +172,6 @@ namespace AdventOfCode2023.API.Controllers
 
             return array; 
         }
-
-
     }
 
     public enum BeamDirection { Right, Left, Up, Down }
