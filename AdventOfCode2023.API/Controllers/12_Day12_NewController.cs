@@ -5,6 +5,7 @@ namespace AdventOfCode2023.API.Controllers
 {
     [Route("day12_new")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class _12_Day12_NewController : ControllerBase
     {
         [HttpGet("exercise2")]
@@ -13,38 +14,150 @@ namespace AdventOfCode2023.API.Controllers
             var lineReader = new StringLineReader();
             var lines = lineReader.ReadLines("data12.txt");
 
+            int result = 0;
             foreach (var line in lines)
             {
-                var splitted = line.Split(' ');
-                var symbols = splitted.First().Trim();
-                var numbers = splitted.Last().Trim()
-                    .Split(',')
-                    .Select(m => int.Parse(m))
-                    .ToList();
+                var symbols = line.Split(' ').First().Trim();
+                var numbers = (line.Split(' ').Last().Trim()).Split(',').Select(m => int.Parse(m)).ToArray();
 
-                var splittedString = ReturnSplitted(symbols); 
+                var str = RemoveUnnecessaryDotsAndReturnCharArray(symbols, out var indices); 
+                
+
+                
             }
 
-            return Ok(); 
+            return Ok(result);
         }
 
-        private static Dictionary<int, int> 
-            ReturnArrayIndexVsCombinationCountForSymbol(string symbol, int[] numbers, 
-            int numberStartIndex = 0)
+        private string MutateString(string symbols, int[] numbers)
         {
-            if (!CanNumberBeUsedInString(symbol, numbers[numberStartIndex], 0, symbol.Length - 1, out var nextIndex))
+            var array = RemoveUnnecessaryDotsAndReturnCharArray(symbols, out var indices);
+            var dic = ReturnIndexByNumber(symbols);
+
+            //first round to see if max and maxes are matching - if yes interpolate regions... 
+            MutateByMaximums(array, dic, numbers, indices); 
+
+            return new string(array);
+        }
+
+        private char[] RemoveUnnecessaryDotsAndReturnCharArray(string symbols, out List<int> dotIndexes)
+        {
+            int index = 0;
+            dotIndexes = new(); 
+            var list = new List<char>();
+
+            while (symbols[index] == '.')
+                index++;
+
+            bool dotFound = false;
+
+            for (int i = index, j=index; i < symbols.Length; i++)
             {
-                return null; 
+                if (symbols[i] != '.' || !dotFound)
+                {
+                    list.Add(symbols[i]);
+                    dotFound = symbols[i] == '.';
+                    if (dotFound)
+                        dotIndexes.Add(j);
+                    j++;
+                    continue; 
+                }
             }
 
-            
+            if (list.Last() == '.')
+            {
+                list.RemoveAt(list.Count - 1);
+                dotIndexes.RemoveAt(dotIndexes.Count - 1); 
+            }
 
-            return new(); 
+            return list.ToArray();
         }
 
-        private List<string> ReturnSplitted(string symbols)
+        private void MutateByMaximums(char[] array, Dictionary<int, List<int>> dic, int[] numbers, List<int> dotIndices)
         {
-            return symbols.Split('.').Where(m => m != "").ToList(); 
+            var numbersSorted = numbers.Where(m => m != -1)
+                .Select((num, idx) => new {idx = idx, num = num })
+                .GroupBy(m => m.num)
+                .ToDictionary(m => m.Key, m => m.Select(r => r.idx).ToList());
+            
+            var mutatedArray = array.Select(m => m).ToList();
+
+            foreach (var num in numbersSorted.OrderByDescending(m => m.Key))
+            {
+                var indexes = num.Value;
+
+                var dictionaryElements = 1; 
+            }
+            
+            
+            foreach (var element in dic.OrderByDescending(m => m.Key))
+            {
+                var indexesForHashes = element.Value;
+
+                if (indexesForHashes.Count == 1)
+                {
+                    if (element.Key == numbersSorted.OrderByDescending(m => m.Key).First().Key)
+                    {
+                        var indexes = numbersSorted[element.Key];
+
+                        if (indexes.Count == 1) //there is only one max index
+                        {
+                            var start = indexesForHashes.First();
+                            var end = start + indexesForHashes.First() - 1;
+
+                            numbersSorted.Remove(element.Key);
+
+                            
+                            continue;
+
+                        }
+
+                       
+                    }
+
+
+
+
+                }
+                
+                
+            }
+        }
+
+        private Dictionary<int, List<int>> ReturnIndexByNumber(string line)
+        {
+            var dict = new Dictionary<int, List<int>>();
+            bool hashFound = false;
+            int hashIndex = -1; 
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (line[i] == '#')
+                {
+                    if (!hashFound)
+                    {
+                        hashFound = true;
+                        hashIndex = i;
+                    }
+                }
+                else
+                {
+                    if (hashFound)
+                    {
+                        var count = i - hashIndex;
+                        if (dict.TryGetValue(count, out var element))
+                        {
+                            element.Add(hashIndex);
+                        }
+                        else
+                        {
+                            dict[count] = new() { hashIndex };
+                        }
+                        hashIndex = -1;
+                        hashFound = false; 
+                    }
+                }
+            }
+            return dict; 
         }
 
         private static bool CanNumberBeUsedInString(string symbol, int number, int startIndex, int endIndex, 
