@@ -34,10 +34,11 @@ namespace AdventOfCode2023.API.Controllers
             var lines = System.IO.File.ReadAllLines("data18.txt");
 
             var dictionary = ReadLinesNew(lines, out var minRow, out var maxRow,
-                out var minCol, out var maxCol, out var _, out var distanceUp, out var distanceLeft);
+                out var minCol, out var maxCol, out var _, out var distanceUp, 
+                out var distanceLeft);
 
-            int height = dictionary.Select(m => m.RowIndex).Max() + 1;
-            int width = dictionary.Select(m => m.ColIndex).Max() + 1;
+            int height = (dictionary.Select(m => m.RowIndex).Max() + 1);
+            int width = (dictionary.Select(m => m.ColIndex).Max() + 1);
 
             var array = Fill(dictionary, height, width);
 
@@ -87,7 +88,30 @@ namespace AdventOfCode2023.API.Controllers
         private long FillNewCave(long[,] array, List<CaveLine> list, int height, int width, long[] distanceUp, 
             long[] distanceLeft)
         {
-            var caveDictionary = list.ToDictionary(m => (m.RowIndex, m.ColIndex), m => m); 
+            var caveDictionary = list.ToDictionary(m => (m.RowIndex, m.ColIndex), m => m);
+            var caveRowDictionary = 
+                list.Select(m => new { rowIndex = m.RowIndex, distance = m.DistanceUp})
+                .OrderBy(m => m.rowIndex).Distinct().ToList();
+
+            var caveColDictionary =
+                list.Select(m => new { colIndex = m.ColIndex, distance = m.DistanceLeft })
+                .OrderBy(m => m.colIndex).Distinct().ToList();
+
+            var rowHeightDictionary = new Dictionary<int, long>();
+
+            for(int i=2; i<=caveRowDictionary.Last().rowIndex; i = i + 2)
+            {
+                var rowIndexBelow = caveRowDictionary[i/2].rowIndex; //1 for 0, 3 for 2 etc. 
+                rowHeightDictionary[i-1] = caveRowDictionary[i/2].distance - caveRowDictionary[i/2-1].distance;
+            }
+
+            var colWidthDictionary = new Dictionary<int, long>();
+
+            for (int i = 2; i <= caveColDictionary.Last().colIndex; i = i + 2)
+            {
+                colWidthDictionary[i - 1] = caveColDictionary[i / 2].distance - caveColDictionary[i / 2 - 1].distance;
+            }
+            var sum = list.Sum(m => Math.Abs(m.Length)); 
             long result = 0;
             for (int i = 0; i < height; i++)
             {
@@ -95,15 +119,23 @@ namespace AdventOfCode2023.API.Controllers
                 {
                     if (array[i, j] == 1)
                     {
-                        result += caveDictionary[(i,j)].Length;
+                        if (caveDictionary.ContainsKey((i, j)))
+                            result += Math.Abs(caveDictionary[(i, j)].Length);
+                        else
+                        {
+
+                        }
                         continue;
                     }
                     var included = TraverseNew(list, i, j);
-                    if (included)
+                    if (included )
                     {
-                        var rowsIncluded = distanceUp[i] - distanceUp[i - 1];
-                        var colsIncluded = distanceLeft[j] - distanceLeft[j - 1];
-                        result += rowsIncluded * colsIncluded;
+                        var rowsHeight = i % 2 == 1 ? rowHeightDictionary[i] - 1 : 1;
+                        var colWidth = j % 2 == 1 ? colWidthDictionary[j] - 1 : 1;
+                        result += rowsHeight * colWidth;
+                    }
+                    else
+                    { 
                     }
                     
                 }
@@ -323,19 +355,6 @@ namespace AdventOfCode2023.API.Controllers
             }
 
             distinctDistanceUp = dictionary.Select(m => m.DistanceUp).Distinct().OrderBy(m => m).ToArray();
-            var dictionaryUpMutated = new List<long>();
-
-            for (int i = 0; i < distinctDistanceUp.Length; i++)
-            {
-                var previousDistance = i == 0 ? 0 : distinctDistanceUp[i - 1]; 
-                dictionaryUpMutated.Add(distinctDistanceUp[i] - previousDistance);
-                dictionaryUpMutated.Add(distinctDistanceUp[i] + 1);
-
-                if(i>0)
-                    dictionaryUpMutated.Add(distinctDistanceUp[i] -1);
-            }
-
-
             distinctDistanceLeft = dictionary.Select(m => m.DistanceLeft).Distinct().OrderBy(m => m).ToArray();
 
             var heightToRowIndexDictionary = distinctDistanceUp.Select((row, idx) => new { distance = row, index = idx })
@@ -349,8 +368,8 @@ namespace AdventOfCode2023.API.Controllers
                 var rowIndex = heightToRowIndexDictionary[el.DistanceUp];
                 var colIndex = widthToColIndexDictionary[el.DistanceLeft];
 
-                el.RowIndex = rowIndex;
-                el.ColIndex = colIndex; 
+                el.RowIndex = rowIndex * 2;
+                el.ColIndex = colIndex * 2; 
             }
 
             var last = dictionary.Last();
