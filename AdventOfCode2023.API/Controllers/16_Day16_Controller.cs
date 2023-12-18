@@ -5,6 +5,7 @@ namespace AdventOfCode2023.API.Controllers
 {
     [Route("day16")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class _16_Day16_Controller : ControllerBase
     {
               
