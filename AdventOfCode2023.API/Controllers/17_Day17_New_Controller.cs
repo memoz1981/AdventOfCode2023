@@ -173,9 +173,12 @@ public class Cell
         cell.UpperNeighbour = this;
     }
 
-    public int GetTotalHeatLoss() => _totalHeatLossToDestination; 
+    public int GetTotalHeatLoss() => _totalHeatLossToDestination;
 
-
+    public int GetDistanceToLowerRowElement()
+    {
+        return 0; 
+    }
 
 
 
