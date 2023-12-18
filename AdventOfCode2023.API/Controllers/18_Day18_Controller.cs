@@ -49,27 +49,38 @@ namespace AdventOfCode2023.API.Controllers
         private long[,] Fill(List<CaveLine> caveLine, int height, int width)
         {
             var builder = new StringBuilder();
-            var array = new long[height, width]; 
+            var array = new long[height, width];
 
-            foreach (var line in caveLine)
+            for(int i = 0; i < caveLine.Count; i++)
             {
-                array[line.RowIndex, line.ColIndex] = 1; 
-            }
+                var current = caveLine[i];
+                var next = caveLine[(i + 1) % caveLine.Count];
 
-            for (int i = 0; i < height; i++)
-            {
-                int countRow = 0;
-                List<int> ones = new();
-                for (int j = 0; j < width; j++)
+                if (current.RowIndex == next.RowIndex) // same row
                 {
-                    if (array[i, j] == 1)
+                    var min = Math.Min(current.ColIndex, next.ColIndex);
+                    var max = Math.Max(current.ColIndex, next.ColIndex);
+
+                    for (int j = min; j <= max; j++)
                     {
-                        ones.Add(j);
-                        countRow++;
+                        array[current.RowIndex, j] = 1;
                     }
                 }
-                builder.AppendLine($"Row {i}: count: {countRow}, cols with ones: {string.Join(',', ones)}");
+                else if (current.ColIndex == next.ColIndex) // same col
+                {
+                    var min = Math.Min(current.RowIndex, next.RowIndex);
+                    var max = Math.Max(current.RowIndex, next.RowIndex);
+
+                    for (int k = min; k <= max; k++)
+                    {
+                        array[k, current.ColIndex] = 1;
+                    }
+                }
+                else
+                    throw new ArgumentException();
             }
+
+            
             return array;
         }
 
@@ -312,6 +323,19 @@ namespace AdventOfCode2023.API.Controllers
             }
 
             distinctDistanceUp = dictionary.Select(m => m.DistanceUp).Distinct().OrderBy(m => m).ToArray();
+            var dictionaryUpMutated = new List<long>();
+
+            for (int i = 0; i < distinctDistanceUp.Length; i++)
+            {
+                var previousDistance = i == 0 ? 0 : distinctDistanceUp[i - 1]; 
+                dictionaryUpMutated.Add(distinctDistanceUp[i] - previousDistance);
+                dictionaryUpMutated.Add(distinctDistanceUp[i] + 1);
+
+                if(i>0)
+                    dictionaryUpMutated.Add(distinctDistanceUp[i] -1);
+            }
+
+
             distinctDistanceLeft = dictionary.Select(m => m.DistanceLeft).Distinct().OrderBy(m => m).ToArray();
 
             var heightToRowIndexDictionary = distinctDistanceUp.Select((row, idx) => new { distance = row, index = idx })
@@ -376,6 +400,11 @@ namespace AdventOfCode2023.API.Controllers
         {
             (Length, LineType) = SetData(length, direction);
             SetPreviousLine(previousLine);
+
+            Previous = previousLine;
+
+            if (previousLine != null)
+                previousLine.Next = this; 
         }
 
         private (int length, CaveLineType lineType) SetData(int length, char direction)
@@ -436,6 +465,9 @@ namespace AdventOfCode2023.API.Controllers
         }
 
         public CaveLineType LineType { get; set; }
+
+        public CaveLine Previous { get; set; }
+        public CaveLine Next { get; set; }
     }
 
     public enum CaveLineType { Horizontal, Vertical }
