@@ -14,7 +14,6 @@ public class _17_Day17_New_Controller : ControllerBase
 
         var array = ReadLines(lines, out var height, out var width);
 
-        var resultsArray = new Cell[height, width];
 
         FindArrayLengths(array, height); 
 
@@ -110,14 +109,22 @@ public class _17_Day17_New_Controller : ControllerBase
         height = lines.Length;
         width = lines[0].Length;
         var array = new Cell[height, width];
+        var rowSums = new int[height];
+        var colSums = new int[width]; 
         for (int i = 0; i < lines.Length; i++)
         {
             var line = lines[i];
             for (int j = 0; j < line.Length; j++)
             {
                 array[i, j] = new Cell(int.Parse(line[j].ToString()), i, j);
+                rowSums[i] += int.Parse(line[j].ToString());
+                colSums[j] += int.Parse(line[j].ToString());
             }
         }
+
+        var distinctRows = rowSums.Distinct().OrderBy(m=>m).ToList();
+        var distinctCols = colSums.Distinct().OrderBy(m => m).ToList(); 
+
 
         return array;
     }
@@ -131,6 +138,8 @@ public class Cell
         Row = row;
         Column = column; 
     }
+
+    public int Degree { get => Math.Max(Row, Column); }
     public int HeatLoss { get; set; }
 
     public int Row { get; set; }
@@ -141,37 +150,110 @@ public class Cell
 
     private string _lastThreeDirections = "";
 
-    public Cell RightNeighbour { get; private set; } = null;
+    private Dictionary<char, Cell> _neighbours = new();
+    
+    public Cell RightNeighbour { get => _neighbours.ContainsKey('R') ? _neighbours['R'] : null; }
 
-    public Cell LeftNeighbour { get; private set; } = null;
+    public Cell LeftNeighbour { get => _neighbours.ContainsKey('L') ? _neighbours['L'] : null; }
 
-    public Cell UpperNeighbour { get; private set; } = null;
+    public Cell UpperNeighbour { get => _neighbours.ContainsKey('U') ? _neighbours['U'] : null; }
 
-    public Cell LowerNeighbour { get; private set; } = null;
+    public Cell LowerNeighbour { get => _neighbours.ContainsKey('D') ? _neighbours['D'] : null; }
+
+    public List<Cell> NeighboursOfSameOrLowerDegree 
+    { get => _neighbours.Select(m => m.Value).Where(m => m.Degree >= Degree).ToList(); }
 
     public void AssignRight(Cell cell)
     {
-        RightNeighbour = cell;
-        cell.LeftNeighbour = this; 
+        _neighbours['R'] = cell;
+        cell.AssignLeft(this); 
     }
 
     public void AssignLeft(Cell cell)
     {
-        LeftNeighbour = cell;
-        cell.RightNeighbour = this;
+        _neighbours['L'] = cell;
+        cell.AssignRight(this);
     }
 
     public void AssignUp(Cell cell)
     {
-        UpperNeighbour = cell;
-        cell.LowerNeighbour = this;
+        _neighbours['U'] = cell;
+        cell.AssignDown(this);
     }
 
     public void AssignDown(Cell cell)
     {
-        LowerNeighbour = cell;
-        cell.UpperNeighbour = this;
+        _neighbours['D'] = cell;
+        cell.AssignUp(this);
     }
+
+    public List<(List<char> path,int heatLoss)>  GetAllPathsToLowerOrSameDegree(int height, int stopAtDegree, HashSet<(int row, int column)> traversed = null)
+    {
+        if (!NeighboursOfSameOrLowerDegree.Any())
+            return new() { ( Array.Empty<char>().ToList(), 3 ) };
+        
+        traversed = traversed ?? new HashSet<(int row,int column)>();
+        //path = path ?? new List<char>(); 
+
+        var traversedCopy = traversed.Select(m => m).ToHashSet();
+        //var pathCopy = path.Select(m => m).ToList();
+
+        traversedCopy.Add((Row, Column)); 
+
+        foreach (var neighbour in _neighbours)
+        {
+            if (traversed.Contains((Row, Column)))
+            {
+                continue; 
+            }
+            if (neighbour.Value.Degree == Degree - 1)
+            {
+                //continue - go only below right
+                continue; 
+            }
+            else if (neighbour.Value.Degree == Degree)
+            {
+                var pathsOfNeighbour = neighbour.Value.GetAllPathsToLowerOrSameDegree(height, Degree + 1, traversedCopy);
+
+                foreach (var path in pathsOfNeighbour)
+                {
+
+                }
+            }
+            else if (neighbour.Value.Degree == Degree + 1)
+            {
+                foreach (var item in neighbour.Value.HeatLossMap)
+                {
+                    string key = item.Key;
+
+                    if (key.Length >= 2)
+                    {
+                        key = key.Substring(0, 2);  
+                    }
+
+                    var keyChar = new List<char>();
+                    keyChar.Add(neighbour.Key);
+                    keyChar.AddRange(key.ToCharArray());
+
+                    if (keyChar.Count == 3 && keyChar.Distinct().Count() == 1)
+                        continue;
+                    else
+                    {
+                        
+                    }
+
+                    key = $"{neighbour.Key.ToString()}{key}";
+                }
+
+            }
+
+
+            
+        }
+        return null;
+    }
+
+    public Dictionary<string, int> HeatLossMap { get; set; } = new(); 
 
     public int GetTotalHeatLoss() => _totalHeatLossToDestination;
 
@@ -179,7 +261,4 @@ public class Cell
     {
         return 0; 
     }
-
-
-
 }
