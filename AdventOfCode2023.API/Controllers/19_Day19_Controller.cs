@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AdventOfCode2023.API.Controllers;
 [Route("day19")]
 [ApiController]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class _19_Day19_Controller : ControllerBase
 {
     [HttpGet("exercise1")]
