@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace AdventOfCode2023.API.Controllers;
 
@@ -19,13 +20,27 @@ public class _20_Day20_Controller : ControllerBase
     }
 
     [HttpGet("exercise2")]
-    public IActionResult Exercise2(int count)
+    public IActionResult Exercise2()
     {
         var lines = System.IO.File.ReadAllLines("data20.txt").ToList();
 
         var manager = new ModuleContainer(lines);
 
         var result = manager.SendLowToRx();
+
+        return Ok(result);
+    }
+
+    [HttpGet("exercise2test")]
+    public IActionResult Exercise2Test(int count)
+    {
+        var lines = System.IO.File.ReadAllLines("data20.txt").ToList();
+
+        var manager = new ModuleContainer(lines);
+
+        var modules = manager.FindAllFlipFlopSourcesOfRx(); 
+
+        var result = manager.StartSequenceReturnState(count);
 
         return Ok(result);
     }
@@ -37,12 +52,23 @@ public abstract class Module
     {
         PulseManager = pulseManager;
         Name = name;
-        DestinationModules = new(); 
+        DestinationModules = new();
+        SourceModules = new(); 
     }
+
+    public List<Module> SourceModules { get; set; }
 
     public void AddDestinations(List<Module> modules)
     {
-        DestinationModules.AddRange(modules); 
+        DestinationModules.AddRange(modules);
+
+        foreach (var module in modules)
+            module.SourceModules.Add(this); 
+    }
+
+    public virtual string ReturnState()
+    {
+        return $"{Name}, {ModuleType}, ";
     }
 
     protected PulseQueueManager PulseManager { get; set; }
@@ -102,6 +128,13 @@ public class ConjunctionModule : Module
         return true; 
     }
 
+    public override string ReturnState()
+    {
+        var baseState = base.ReturnState();
+
+        return $"{baseState}, {string.Join(';', _lastStates.Select(m => $"{m.Key}-{m.Value.ToString()}"))}";
+    }
+
     private Dictionary<string, bool> _lastStates = new(); 
 }
 
@@ -122,7 +155,9 @@ public class FlipFlopModule : Module
         ModuleType = ModuleType.FlipFlop;
     }
 
-    private bool _state = false; 
+    private bool _state = false;
+
+    public bool GetState() => _state; 
 
     protected override bool? GeneratePulseState(Pulse pulse)
     {
@@ -132,6 +167,14 @@ public class FlipFlopModule : Module
         _state = !_state;
 
         return _state; 
+    }
+
+    public override string ReturnState()
+    {
+        if (_state == false)
+            return "0";
+
+        return "1"; 
     }
 }
 
@@ -378,11 +421,146 @@ public class ModuleContainer
         return _pulseQueueManager.TotalPulses(); 
     }
 
+    public string StartSequenceReturnState(long count)
+    {
+        var builder = new StringBuilder();
+
+        var modules = FindAllFlipFlopSourcesOfRx();
+
+        var lastIndexesPerModuleName = modules.ToDictionary(m => m.Name, m => -1); 
+        var offsetsPerModuleName = modules.ToDictionary(m => m.Name, m => -1);
+        var recurringsPerModuleName = modules.ToDictionary(m => m.Name, m => -1);
+        var lastStates = modules.ToDictionary(m => m.Name, m => false);
+
+        for (int i = 1; i <= count; i++)
+        {
+            _pulseQueueManager.Initialize();
+
+            PopulateModuleStates(modules, lastIndexesPerModuleName, offsetsPerModuleName, recurringsPerModuleName,
+                lastStates, i); 
+        }
+
+        foreach (var module in modules)
+        {
+            builder.AppendLine($"Module: {module.Name}, recur: {recurringsPerModuleName[module.Name]}, " +
+                $"offset: {offsetsPerModuleName[module.Name]}"); 
+        }
+
+        return builder.ToString();
+    }
+
+    public string StartSequenceReturnStateNew(long count)
+    {
+        var builder = new StringBuilder();
+
+        var modules = FindAllFlipFlopSourcesOfRx();
+
+        var lastIndexesPerModuleName = modules.ToDictionary(m => m.Name, m => -1);
+        var offsetsPerModuleName = modules.ToDictionary(m => m.Name, m => -1);
+        var recurringsPerModuleName = modules.ToDictionary(m => m.Name, m => -1);
+        var lastStates = modules.ToDictionary(m => m.Name, m => false);
+
+        for (int i = 1; i <= count; i++)
+        {
+            _pulseQueueManager.Initialize();
+
+            PopulateModuleStates(modules, lastIndexesPerModuleName, offsetsPerModuleName, recurringsPerModuleName,
+                lastStates, i);
+        }
+
+        foreach (var module in modules)
+        {
+            builder.AppendLine($"Module: {module.Name}, recur: {recurringsPerModuleName[module.Name]}, " +
+                $"offset: {offsetsPerModuleName[module.Name]}");
+        }
+
+        return builder.ToString();
+    }
+
+    private void PopulateModuleStates(List<Module> modules, Dictionary<string, int> lastIndexesPerModuleName,
+        Dictionary<string, int> offsetsPerModuleName, Dictionary<string, int> recurringsPerModuleName, 
+        Dictionary<string, bool> lastStates,
+        int index)
+    {
+        foreach (var item in modules)
+        {
+            var flipFlop = item as FlipFlopModule; 
+            var currentLastIndex = lastIndexesPerModuleName[item.Name];
+            var currentOffset = offsetsPerModuleName[item.Name];
+            var currentRecur = recurringsPerModuleName[item.Name];
+
+            if (item.Name == "rj")
+            {
+                var a = 1; 
+            }
+
+            if (flipFlop.GetState() && !lastStates[item.Name])
+            {
+                //Recurrings
+                if (currentLastIndex == -1)
+                {
+                    //do nothing for recur - next time
+                }
+                else if (currentRecur == -1)
+                {
+                    var newRecur = index - currentLastIndex;
+                    recurringsPerModuleName[item.Name] = newRecur;
+                }
+                else if (currentRecur == -2)
+                {
+                    //these are set for non-recurring
+                }
+                else
+                {
+                    var newRecur = index - currentLastIndex;
+                    if (currentRecur != newRecur)
+                        recurringsPerModuleName[item.Name] = -2; 
+                }
+
+                if (currentOffset == -1)
+                    offsetsPerModuleName[item.Name] = index;
+
+
+                lastIndexesPerModuleName[item.Name] = index; 
+            }
+            lastStates[item.Name] = flipFlop.GetState();
+        }
+    }
+
     public long SendLowToRx()
     {
         var result = _pulseQueueManager.SendLowToRx(out var buttonPressCount);
 
         return buttonPressCount; 
+    }
+
+    public List<Module> FindAllFlipFlopSourcesOfRx()
+    {
+        var modules = new List<Module>();
+        var sources = _modules["rx"].SourceModules
+            .Where(m => m.ModuleType == ModuleType.FlipFlop || m.ModuleType == ModuleType.Conjunction).ToList();
+        
+        while (true)
+        {
+            if (!sources.Any())
+                break; 
+            
+            var flipFlop = sources.Where(m => m.ModuleType == ModuleType.FlipFlop);
+
+            modules.AddRange(flipFlop); 
+
+            sources = sources.Where(m => m.ModuleType == ModuleType.Conjunction).SelectMany(mod => mod.SourceModules).ToList();
+        }
+        return modules; 
+    }
+
+    public string ReturnState()
+    {
+        var builder = new StringBuilder();
+
+        var modules = _modules.Where(m => m.Value.ModuleType == ModuleType.FlipFlop).OrderBy(m => m.Key).ToList();
+
+        return String.Join(' ', modules.Select(m => m.Value.ReturnState()).ToList()); 
     }
 }
 
