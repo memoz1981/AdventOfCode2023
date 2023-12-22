@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace AdventOfCode2023.API.Controllers
 {
     [Route("day21")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class _21_Day21_Controller : ControllerBase
     {
         [HttpGet("exercise1")]
@@ -11,7 +13,7 @@ namespace AdventOfCode2023.API.Controllers
         {
             var lines = System.IO.File.ReadAllLines("data21.txt").ToList();
 
-            var array = ReadArray(lines, out var height, out var width, out var startRow, out var startCol);
+            var array = ReadArray(lines, out var height, out var width, out var startRow, out var startCol, out var _);
 
             var result = ReturnForStep(array, startRow, startCol, stepCount, height, width);
 
@@ -23,14 +25,33 @@ namespace AdventOfCode2023.API.Controllers
         {
             var lines = System.IO.File.ReadAllLines("data21.txt").ToList();
 
-            var array = ReadArray(lines, out var height, out var width, out var startRow, out var startCol);
+            var array = ReadArray(lines, out var height, out var width, out var startRow, out var startCol, out var oneCount);
 
             var result = ReturnForStepEx2(array, startRow, startCol, stepCount, height, width);
 
-            return Ok(result.Count(m => (m.rowIndex + m.colIndex + m.verticalSlice + m.horizontalSlice) % 2 == stepCount % 2));
+            var indexesWithOnes = result.DistinctBy(m => (m.rowIndex, m.colIndex)).Count();
+
+            var count = result.Count(m => (m.rowIndex + m.colIndex + m.verticalSlice + m.horizontalSlice) % 2 == stepCount % 2);
+
+            var builder = new StringBuilder();
+
+            var groupedResult = result.GroupBy(m => (m.rowIndex, m.colIndex))
+                .ToDictionary(m => m.Key, m => m.Count())
+                .OrderBy(m => m.Key.rowIndex)
+                .ThenBy(m => m.Key.colIndex); 
+
+            foreach(var element in groupedResult)
+            {
+                builder.AppendLine($"Index: ({element.Key.rowIndex},{element.Key.colIndex}), count: {element.Value}");
+            }
+
+            //return Ok($"After {stepCount} steps: {indexesWithOnes} indexes have ones, array total indexes with ones = {oneCount}");
+
+            return Ok(builder.ToString());
         }
 
-        private static bool[,] ReadArray(List<string> lines, out int height, out int width, out int startRow, out int startCol)
+        private static bool[,] ReadArray(List<string> lines, out int height, out int width, out int startRow, out int startCol, 
+            out int oneCount)
         {
             height = lines.Count;
             width = lines[0].Length;
@@ -39,6 +60,8 @@ namespace AdventOfCode2023.API.Controllers
             startCol = 0;
 
             var array = new bool[height, width];
+
+            oneCount = 0; 
 
             for (int i = 0; i < height; i++)
             {
@@ -56,7 +79,10 @@ namespace AdventOfCode2023.API.Controllers
                         startCol = j; 
                     }
                     else
-                        throw new ArgumentException(); 
+                        throw new ArgumentException();
+
+                    if (array[i, j])
+                        oneCount++; 
                 }
             }
 
